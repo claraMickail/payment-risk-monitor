@@ -60,7 +60,7 @@ def initialize_database() -> None:
         )
 
 
-def create_import_run(source_name: str, rows_received: int) -> int:
+def create_import_run(source_name: str, rows_received: int = 0) -> int:
     """Record a new data batch and return its ID."""
     with get_connection() as connection:
         cursor = connection.execute(
@@ -75,6 +75,7 @@ def create_import_run(source_name: str, rows_received: int) -> int:
 
 def complete_import_run(
     import_run_id: int,
+    rows_received: int,
     rows_loaded: int,
     rows_rejected: int,
 ) -> None:
@@ -83,10 +84,10 @@ def complete_import_run(
         connection.execute(
             """
             UPDATE import_runs
-            SET rows_loaded = ?, rows_rejected = ?
+            SET rows_loaded = ?, rows_loaded = ?, rows_rejected = ?
             WHERE id = ?
             """,
-            (rows_loaded, rows_rejected, import_run_id),
+            (rows_received, rows_loaded, rows_rejected, import_run_id),
         )
 
 
