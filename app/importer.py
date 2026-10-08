@@ -44,6 +44,9 @@ class ValidationResult:
     def rows_rejected(self) -> int:
         return len(self.rejected_rows)
 
+def clean_text(value: str | None) -> str:
+    """Remove whitespace and BankSim's surrounding single quotes."""
+    return (value or "").strip().strip("'")
 
 def validate_csv_headers(fieldnames: list[str] | None) -> None:
     """Confirm that the input file has every column needed."""
@@ -60,9 +63,9 @@ def parse_transaction(
     source_row: int,
 ) -> TransactionRecord:
     """Validate one CSV row and return its cleaned transaction record."""
-    customer_id = (row.get("customer") or "").strip()
-    merchant_id = (row.get("merchant") or "").strip()
-    category = (row.get("category") or "").strip()
+    customer_id = clean_text(row.get("customer"))
+    merchant_id = clean_text(row.get("merchant"))
+    category = clean_text(row.get("category"))
 
     try:
         step = int(row.get("step") or "")
